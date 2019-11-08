@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Richard's Portfolio</title>    
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+    </style>
+  </head>
+  <body>
+    <h1>Secret Santa App</h1>
+    <h2>Organize your secret santa events!</h2>
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" size="25" placeholder="Secret santa event">
+    <button id="create" title = "Not implemented">Create an event</button>
+    <p>this is not implemented don't click the button above</p>
+    
+    <h4>Add a person</h4>
+    <label for="addName">Name:</label>
+    <input type="text" id="addName" name="addName" size="20" placeholder="John Deniro">
+    <input type="text" id="addEmail" name="addEmail" size="30" placeholder="john@deniromail.com">
+    <button id="addPerson">Add person</button>      
+    <h4>People who are currently added</h4>
+    <div id="peopleAdded"></div>
+    
+    <button id="generate">Match participants!</button>
+    <h4>People who are currently matched</h4>
+    <div id="peopleMatched"></div>
+
+
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script>
+      // Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyDNpW4MKRsH8E0wlK7sTCIdLO17Oqr3r1o",
+        authDomain: "secret-santa-a9a22.firebaseapp.com",
+        databaseURL: "https://secret-santa-a9a22.firebaseio.com",
+        projectId: "secret-santa-a9a22",
+        storageBucket: "secret-santa-a9a22.appspot.com",
+        messagingSenderId: "619079486705",
+        appId: "1:619079486705:web:7df2b9631e6d6210c9ad50"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var database = firebase.firestore();
+      var currentEvent = "test1"
+      var listOfParticipants = new Array();
+      var shuffledArray;
+      
+      //document.getElementById("create").onclick = /*createEvent*/;
+
+      document.getElementById("addPerson").onclick = addParticipantHandler;
+      document.getElementById("generate").onclick = matchParticipantsHandler;
+      //console.log(listOfParticipants);
+      
+      updateParticipantsDisplay();
+      matchParticipants();
+      updateParticipantsMatchDisplay();
+
+    
+      function updateParticipantsDisplay() {
+        getParticipants();
+        window.setTimeout(function(){
+          elm = document.getElementById("peopleAdded")
+          while (elm.hasChildNodes()) {
+            elm.removeChild(elm.lastChild);
+          }
+          
+          for(var i = 0; i < listOfParticipants.length; i++) {
+            p = listOfParticipants[i];
+            var par = document.createElement("p");
+            var text = document.createTextNode(p[1] + " " + p[2]);
+            par.appendChild(text);
+            document.getElementById("peopleAdded").appendChild(par);
+          }
+        }, 1200);
+        
+      }
+      
+      function shuffle(a) {
+          var j, x, i;
+          for (i = a.length - 1; i > 0; i--) {
+              j = Math.floor(Math.random() * (i + 1));
+              x = a[i];
+              a[i] = a[j];
+              a[j] = x;
+          }
+          return a;
+      }
+      
+      function matchParticipantsHandler() {
+        matchParticipants();
+        updateParticipantsMatchDisplay();
+      }
+      
+      var temp;
+      function updateParticipantsMatchDisplay() {
+        window.setTimeout(function() {
+          elm = document.getElementById("peopleMatched")
+          while (elm.hasChildNodes()) {
+            elm.removeChild(elm.lastChild);
+          }
+          
+          var docRef = database.collection("events").doc(currentEvent).collection("participants");
+          docRef.get().then(function(querySnapshot) {
+              querySnapshot.forEach(function(doc2) {
+                var par = document.createElement("p");
+                var v = database.collection("events").doc(currentEvent).collection("participants").doc(doc2.data().match);
+                v.get().then(function(doc) {
+                  if (doc.exists) {
+                      console.log(temp)
+                      temp = doc.data().name;
+                      var text = document.createTextNode(doc2.data().name + " " + temp);
+                      par.appendChild(text);
+                      document.getElementById("peopleMatched").appendChild(par);
+                  } else {
+                      // doc.data() will be undefined in this case
+                      console.log("No such document!");
+                  }
+                }).catch(function(error) {
+                    console.log("Error getting document:", error);
+                });
+
+              });
+          });
+        }, 1000);
+      }
+      
+      function matchParticipants() {
+        window.setTimeout(function() {
+          shuffledArray = listOfParticipants.slice();
+          shuffledArray = shuffle(listOfParticipants.slice());
+          console.log(shuffledArray);
+
+          var docRef = database.collection("events").doc(currentEvent).collection("participants");
+          docRef.get().then(function(querySnapshot) {
+              querySnapshot.forEach(function(doc) {
+                doc.ref.update({
+                  match: shuffledArray.pop()[0]
+                })
+              });
+          });
+        }, 1200);
+
+      }
+
+      function createEvent() {
+        if(document.getElementById('name').value) {
+          writeSantaEventIntoFirebase(document.getElementById('name').value);          
+        }
+      }
+      
+      function getParticipants() {
+        var docRef = database.collection("events").doc(currentEvent).collection("participants");
+        docRef.get().then(function(docs) {
+          docs.forEach(function(doc) {
+            listOfParticipants.push([doc.id, doc.data().name, doc.data().email]);
+          });
+        });
+      }
+      
+      function addParticipantHandler() {
+        addParticipant(document.getElementById("addName").value, document.getElementById("addEmail").value);
+      }
+      
+      function addParticipant(enteredName, enteredEmail) {
+        database.collection("events").doc(currentEvent).collection("participants").add({
+          name: enteredName,
+          email: enteredEmail
+        })
+        .then(function(docRef) {
+          console.log("Document written with ID: ", docRef.id);
+          getParticipants();
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+        });
+      }
+      
+      function writeSantaEventIntoFirebase(givenName) {
+        database.collection("events").doc(givenName).set({
+          name: givenName
+        })
+        .then(function() {
+          console.log("Document written with ID: ", givenName);
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+        });
+      }
+
+      
+    </script>
+  </body>
+</html>
