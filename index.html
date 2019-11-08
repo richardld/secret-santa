@@ -2,8 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Richard's Portfolio</title>    
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <title>Secret Santa</title>    
     <style>
     </style>
   </head>
@@ -116,7 +115,7 @@
                   if (doc.exists) {
                       console.log(temp)
                       temp = doc.data().name;
-                      var text = document.createTextNode(doc2.data().name + " " + temp);
+                      var text = document.createTextNode(doc2.data().name + " is paired with " + temp + ".");
                       par.appendChild(text);
                       document.getElementById("peopleMatched").appendChild(par);
                   } else {
