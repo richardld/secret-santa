@@ -62,8 +62,8 @@
       firebase.initializeApp(firebaseConfig);
       var database = firebase.firestore();
       var docId;
-      var inviteLink = "invited.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/invited.html?id=";
-      var manageLink = "manage.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/manage.html?id=";
+      var inviteLink = "https://richardld.github.io/secret-santa/invited.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/invited.html?id=";
+      var manageLink = "https://richardld.github.io/secret-santa/invited.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/manage.html?id=";
 
         
       function writeSantaEventIntoFirebase(givenName) {
@@ -78,7 +78,7 @@
         .then(function(docRef) {
           docId = docRef.id;
           console.log("Document written with name: ", givenName);
-          document.getElementById("invite").innerHTML = "Send this link to participants: \n" + inviteLink + docId + " (There's not a domain for this site yet so just paste this in place of create.html)"; 
+          document.getElementById("invite").innerHTML = "Send this link to participants: \n" + inviteLink + docId;
           document.getElementById("manage").innerHTML = "Go to this link to manage the event: \n" + manageLink + docId; 
         })
         .catch(function(error) {
