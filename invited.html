@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Secret Santa</title>    
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="top">
+      <h1>Secret Santa App</h1>
+      <div class="content">
+        <h4 id="title"></h3>
+        <p id="date"></p>
+        <p id="cost"></p>
+        <p id="comments"></p>
+        <h4>Join the secret santa!</h4>
+        <label for="addName">Name:</label>
+        <input type="text" id="addName" name="addName" size="20" placeholder="John Deniro">
+        <input type="text" id="addEmail" name="addEmail" size="30" placeholder="john@deniromail.com">
+        <button id="addPerson">Join</button>      
+        <h4>People who have already joined</h4>
+        <div id="peopleAdded"></div>
+      </div>
+    </div>
+    <div class="options">
+      <div class="link"?>
+        <a href="about.html">About</a>
+        <a href="donate.html">Donate</a>
+        <a href="help.html">Help</a>
+        <a href="https://github.com/richardld/secret-santa">Source</a>
+      </div>
+    </div>
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script>
+      // Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyDNpW4MKRsH8E0wlK7sTCIdLO17Oqr3r1o",
+        authDomain: "secret-santa-a9a22.firebaseapp.com",
+        databaseURL: "https://secret-santa-a9a22.firebaseio.com",
+        projectId: "secret-santa-a9a22",
+        storageBucket: "secret-santa-a9a22.appspot.com",
+        messagingSenderId: "619079486705",
+        appId: "1:619079486705:web:7df2b9631e6d6210c9ad50"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var database = firebase.firestore();
+      var listOfParticipants = [];
+      var shuffledArray;
+      
+      //document.getElementById("create").onclick = /*createEvent*/;
+
+      document.getElementById("addPerson").onclick = addParticipantHandler;
+      //console.log(listOfParticipants);
+      
+      var currentEvent = getUrlVars()['id'];
+      
+      console.log(currentEvent);
+      updateParticipantsDisplay();
+      updateInfoDisplay();
+      
+      function updateInfoDisplay() {
+        var v = database.collection("events").doc(currentEvent);
+        v.get().then(function(doc) {
+          if (doc.exists) {
+              document.getElementById("title").innerHTML = "You have been invited to " + doc.data().name.toString()+ "!";
+              document.getElementById("date").innerHTML = "The event will be on " + doc.data().eventDate.toString() + ".";
+              document.getElementById("cost").innerHTML = "Each gift will cost around $" + doc.data().giftCost.toString() + ".";
+              document.getElementById("comments").innerHTML = "Comments on the event: " + doc.data().comments.toString() + ".";
+
+          } else {
+              // doc.data() will be undefined in this case
+              console.log("No such document!");
+          }
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+      }
+      
+      function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+          vars[key] = value;
+        });
+        return vars;
+      }
+    
+      function updateParticipantsDisplay() {
+        getParticipants();
+        window.setTimeout(function() {
+          elm = document.getElementById("peopleAdded")
+          while (elm.hasChildNodes()) {
+            elm.removeChild(elm.lastChild);
+          }
+          
+          if(listOfParticipants.length == 0) {
+            var par = document.createElement("p");
+            var text = document.createTextNode("No one has been added yet.");
+            par.appendChild(text);
+            document.getElementById("peopleAdded").appendChild(par);
+          } else {
+            for(var i = 0; i < listOfParticipants.length; i++) {
+              p = listOfParticipants[i];
+              var par = document.createElement("p");
+              var text = document.createTextNode(p[1]);
+              par.appendChild(text);
+              document.getElementById("peopleAdded").appendChild(par);
+            }
+          }
+        }, 1200);
+      }
+      
+      function matchParticipantsHandler() {
+        matchParticipants();
+        updateParticipantsMatchDisplay();
+      }
+      
+      function getParticipants() {
+        var docRef = database.collection("events").doc(currentEvent).collection("participants");
+        listOfParticipants = []
+        docRef.get().then(function(docs) {
+          docs.forEach(function(doc) {
+            listOfParticipants.push([doc.id, doc.data().name, doc.data().email]);
+          });
+        });
+      }
+      
+      function addParticipantHandler() {
+        addParticipant(document.getElementById("addName").value, document.getElementById("addEmail").value);
+        document.getElementById("peopleAdded").innerHTML = "";
+        updateParticipantsDisplay();
+      }
+
+      function addParticipant(enteredName, enteredEmail) {
+        database.collection("events").doc(currentEvent).collection("participants").add({
+          name: enteredName,
+          email: enteredEmail
+        })
+        .then(function(docRef) {
+          console.log("Document written with ID: ", docRef.id);
+          getParticipants();
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+        });
+      }
+      
+      function writeSantaEventIntoFirebase(givenName) {
+        database.collection("events").doc(givenName).set({
+          name: givenName
+        })
+        .then(function() {
+          console.log("Document written with ID: ", givenName);
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+        });
+      }
+      
+    </script>
+  </body>
+</html>

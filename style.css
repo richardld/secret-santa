@@ -1,0 +1,96 @@
+body {
+  margin: 0;
+  background-color: #C3FDB8;
+  font-family: Arial, sans-serif;
+
+}
+
+html, body, .link {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+h1 {
+  
+}
+
+button {
+  height: 9%;
+  width: 8%;
+  border-width: 1px;
+  border-style:solid;
+  border-color: black;
+  background-color: #C3FDB8;
+
+}
+
+a {
+  margin-left: 50px;
+  color: black;
+  text-decoration: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+
+}
+
+.header {
+  background-color: #C3FDB8;
+  height: 95vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+input {
+  border-width: 0;
+  background-color: inherit;
+  border-bottom-width: 1px;
+  border-color: darkgrey;
+}
+
+.top {
+  margin-left: 2%;
+}
+
+.content {
+  margin-left: 1%;
+}
+
+.dollars::before {
+  content: '$';
+}
+
+.people::before {
+  content: '#';
+}
+
+
+.options {
+  background-color: #E0E0E0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  vertical-align: bottom;
+  text-align: center;
+  height: 5vh;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type=number] { 
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0; 
+}

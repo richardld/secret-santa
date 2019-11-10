@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Secret Santa</title>    
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="top">
+      <h1>Secret Santa App</h1>
+      <div class="content">
+        <p>What should the secret santa be called?</p>
+        <input type="text" id="eventName" name="name" size="40" placeholder="John's secret santa event" required></input>
+        <p>About how many people do you expect to join?</p>
+        <div class="people">
+          <input type="number" id="countPeople" name="number" style="width:35px" value="0" required></input>
+        </div>
+        <p>When will sign ups end?</p>
+        <input type="date" id="endDate" name="endDate" required></input>
+        <p>When will the event be?</p>
+        <input type="date" id="eventDate" name="eventDate" required></input>
+        <p>How much should each gift cost?</p>
+        <div class="dollars">
+          <input type="number" id="cost" name="cost" style="width:40px" value="10" required></input>
+        </div>
+        <p>Any comments to participants?</p>
+        <input type="text" id="comments" name="name" size="40" placeholder="No comments"></input>
+        <br>
+        <br>
+        <button id="next">Next</button>
+        <p id="invite"></p>
+        <p id="manage"></p>
+      </div>
+    </div>
+    <div class="options">
+      <div class="link"?>
+        <a href="about.html">About</a>
+        <a href="about.html">Donate</a>
+        <a href="about.html">Help</a>
+        <a href="about.html">Source</a>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+    <script>
+      document.getElementById("next").onclick = nextButtonEvent;
+      
+      function nextButtonEvent() {
+        writeSantaEventIntoFirebase();
+      }
+      
+      var firebaseConfig = {
+        apiKey: "AIzaSyDNpW4MKRsH8E0wlK7sTCIdLO17Oqr3r1o",
+        authDomain: "secret-santa-a9a22.firebaseapp.com",
+        databaseURL: "https://secret-santa-a9a22.firebaseio.com",
+        projectId: "secret-santa-a9a22",
+        storageBucket: "secret-santa-a9a22.appspot.com",
+        messagingSenderId: "619079486705",
+        appId: "1:619079486705:web:7df2b9631e6d6210c9ad50"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var database = firebase.firestore();
+      var docId;
+      var inviteLink = "invited.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/invited.html?id=";
+      var manageLink = "manage.html?id=";//"file:///C:/Users/Richard/Documents/GitHub/Secret-santa/manage.html?id=";
+
+        
+      function writeSantaEventIntoFirebase(givenName) {
+        ref = database.collection("events").add({
+          name: document.getElementById("eventName").value,
+          peopleExpected: document.getElementById("countPeople").value,
+          signUpEndDate: document.getElementById("endDate").value,
+          eventDate: document.getElementById("eventDate").value,
+          giftCost: document.getElementById("cost").value,
+          comments: document.getElementById("comments").value
+        })
+        .then(function(docRef) {
+          docId = docRef.id;
+          console.log("Document written with name: ", givenName);
+          document.getElementById("invite").innerHTML = "Send this link to participants: \n" + inviteLink + docId + " (There's not a domain for this site yet so just paste this in place of create.html)"; 
+          document.getElementById("manage").innerHTML = "Go to this link to manage the event: \n" + manageLink + docId; 
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+        });
+      }
+      
+    </script>
+  </body>
+</html>
