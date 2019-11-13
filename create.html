@@ -9,43 +9,115 @@
     <div class="top">
       <h1>Secret Santa App</h1>
       <div class="content">
-        <p>What should the secret santa be called?</p>
-        <input type="text" id="eventName" name="name" size="40" placeholder="John's secret santa event" required></input>
-        <p>About how many people do you expect to join?</p>
-        <div class="people">
-          <input type="number" id="countPeople" name="number" style="width:35px" value="0" required></input>
+        <div class="horizontal">
+          <div id="informationDiv" class="left" style="width: 25%">
+            <h2 id="informationHeader">Information</h2>
+            <p>What should the secret santa be called?</p>
+            <input type="text" id="eventName" name="name" size="40" placeholder="John's secret santa event" required></input>
+            <p>About how many people do you expect to join?</p>
+            <div class="people">
+              <input type="number" id="countPeople" name="number" style="width:35px" value="0" required></input>
+            </div>
+            <p>When will sign ups end?</p>
+            <input type="date" id="endDate" name="endDate" required></input>
+            <p>When will the event be?</p>
+            <input type="date" id="eventDate" name="eventDate" required></input>
+            <p>How much should each gift cost?</p>
+            <div class="dollars">
+              <input type="number" id="cost" name="cost" style="width:40px" value="10" required></input>
+            </div>
+            <br>
+            <button id="informationNext">Next</button>
+          </div>
+          <div class="left">
+            <button class="rightArrow">&#8250;</button>
+          </div>
+          <div id="detailsDiv" class="left" style="width: 25%">
+            <h2 id="detailsHeader">Details</h2>
+            <p>What is quick description of the event?</p>
+            <textarea id="description" rows="4" style="width: 100%;"></textarea>                        
+            <p>Any comments to participants?</p>
+            <textarea id="comments" rows="6" style="width: 100%;"></textarea>                        
+            <br>
+            <br>
+            <div style="display: flex; justify-content: space-between;">
+              <button id="detailsBack">Back</button>
+              <button id="detailsNext">Next</button>
+            </div>
+          </div>
+          <div id="rightButton" class="left">
+            <button class="rightArrow">&#8250;</button>
+          </div>
+          <div id="invitationsDiv" class="left" style="width: 27%">
+            <h2>Invitations</h2>
+            <p id="invite">Complete the event to invite participants!</p>
+            <p id="manage"></p>
+          </div>
         </div>
-        <p>When will sign ups end?</p>
-        <input type="date" id="endDate" name="endDate" required></input>
-        <p>When will the event be?</p>
-        <input type="date" id="eventDate" name="eventDate" required></input>
-        <p>How much should each gift cost?</p>
-        <div class="dollars">
-          <input type="number" id="cost" name="cost" style="width:40px" value="10" required></input>
-        </div>
-        <p>Any comments to participants?</p>
-        <input type="text" id="comments" name="name" size="40" placeholder="No comments"></input>
-        <br>
-        <br>
-        <button id="next">Next</button>
-        <p id="invite"></p>
-        <p id="manage"></p>
       </div>
     </div>
     <div class="options">
       <div class="link"?>
+        <a href="index.html">Home</a>
         <a href="about.html">About</a>
-        <a href="about.html">Donate</a>
-        <a href="about.html">Help</a>
-        <a href="about.html">Source</a>
+        <a href="donate.html">Donate</a>
+        <a href="https://github.com/richardld/secret-santa">Source</a>
       </div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
     <script>
-      document.getElementById("next").onclick = nextButtonEvent;
+      document.getElementById("informationNext").onclick = informationNextButtonEvent;
+      document.getElementById("detailsNext").disabled = true;
+      document.getElementById("detailsNext").style.color = "darkgrey";
+      document.getElementById("detailsNext").style.borderColor = "darkgrey";
+      document.getElementById("detailsNext").onclick = nextButtonEvent;
+      document.getElementById("detailsBack").disabled = true;
+      document.getElementById("detailsBack").style.color = "darkgrey";
+      document.getElementById("detailsBack").style.borderColor = "darkgrey";
+      document.getElementById("detailsBack").onclick = backButtonEvent;
+      document.getElementById("detailsDiv").style.color = "darkgrey";
+      document.getElementById("invitationsDiv").style.color = "darkgrey";
+      document.getElementById("description").disabled = true;
+      document.getElementById("comments").disabled = true;
+      
+      function backButtonEvent() {
+        document.getElementById("detailsNext").disabled = true;
+        document.getElementById("detailsNext").style.color = "darkgrey";
+        document.getElementById("detailsNext").style.borderColor = "darkgrey";
+        document.getElementById("detailsBack").disabled = true;
+        document.getElementById("detailsBack").style.color = "darkgrey";
+        document.getElementById("detailsBack").style.borderColor = "darkgrey";
+        document.getElementById("detailsDiv").style.color = "darkgrey";
+        document.getElementById("invitationsDiv").style.color = "darkgrey";
+        document.getElementById("description").disabled = true;
+        document.getElementById("comments").disabled = true;
+        document.getElementById("informationNext").disabled = false;
+        document.getElementById("informationDiv").style.color = "inherit";
+        document.getElementById("informationHeader").innerHTML = "Information";
+        document.getElementById("detailsHeader").innerHTML = "Details";
+
+      }
+      
+      function informationNextButtonEvent() {
+        document.getElementById("detailsNext").disabled = false;
+        document.getElementById("detailsNext").style.color = "inherit";
+        document.getElementById("detailsNext").style.borderColor = "inherit";
+        document.getElementById("detailsDiv").style.color = "inherit";
+        document.getElementById("description").disabled = false;
+        document.getElementById("comments").disabled = false;
+        document.getElementById("detailsBack").disabled = false;
+        document.getElementById("detailsBack").style.color = "inherit";
+        document.getElementById("detailsBack").style.borderColor = "inherit";
+        document.getElementById("informationNext").disabled = true;
+        document.getElementById("informationDiv").style.color = "grey";
+        document.getElementById("informationHeader").innerHTML = "Information <em>&#10004;<em>";
+      }
       
       function nextButtonEvent() {
+        document.getElementById("invitationsDiv").style.color = "inherit";
+        document.getElementById("detailsDiv").style.color = "darkgrey";
+        document.getElementById("detailsHeader").innerHTML = "Details <em>&#10004;<em>";
         writeSantaEventIntoFirebase();
       }
       
@@ -67,16 +139,17 @@
 
         
       function writeSantaEventIntoFirebase(givenName) {
-        ref = database.collection("events").add({
+        docId = randomString(8, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        ref = database.collection("events").doc(docId).set({
           name: document.getElementById("eventName").value,
           peopleExpected: document.getElementById("countPeople").value,
           signUpEndDate: document.getElementById("endDate").value,
           eventDate: document.getElementById("eventDate").value,
           giftCost: document.getElementById("cost").value,
+          description: document.getElementById("description").value,
           comments: document.getElementById("comments").value
         })
-        .then(function(docRef) {
-          docId = docRef.id;
+        .then(function() {
           console.log("Document written with name: ", givenName);
           document.getElementById("invite").innerHTML = "Send this link to participants: \n" + inviteLink + docId;
           document.getElementById("manage").innerHTML = "Go to this link to manage the event: \n" + manageLink + docId; 
@@ -84,6 +157,12 @@
         .catch(function(error) {
           console.error("Error adding document: ", error);
         });
+      }
+      
+      function randomString(length, chars) {
+          var result = '';
+          for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+          return result;
       }
       
     </script>

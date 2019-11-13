@@ -6,27 +6,28 @@
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <div class="top">
+    <div id="top" class="top">
       <h1>Secret Santa App</h1>
       <div class="content">
         <h4 id="title"></h3>
         <p id="date"></p>
         <p id="cost"></p>
+        <p id="description"></p>
         <p id="comments"></p>
         <h4>Join the secret santa!</h4>
         <label for="addName">Name:</label>
         <input type="text" id="addName" name="addName" size="20" placeholder="John Deniro">
-        <input type="text" id="addEmail" name="addEmail" size="30" placeholder="john@deniromail.com">
+        <input type="email" id="addEmail" name="addEmail" size="30" placeholder="john@deniromail.com">
         <button id="addPerson">Join</button>      
-        <h4>People who have already joined</h4>
+        <h4>People who have already joined:</h4>
         <div id="peopleAdded"></div>
       </div>
     </div>
     <div class="options">
       <div class="link"?>
+        <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-        <a href="help.html">Help</a>
         <a href="https://github.com/richardld/secret-santa">Source</a>
       </div>
     </div>
@@ -53,6 +54,7 @@
       var database = firebase.firestore();
       var listOfParticipants = [];
       var shuffledArray;
+      var pastDate = false;
       
       //document.getElementById("create").onclick = /*createEvent*/;
 
@@ -64,6 +66,7 @@
       console.log(currentEvent);
       updateParticipantsDisplay();
       updateInfoDisplay();
+      checkPastDate();
       
       function updateInfoDisplay() {
         var v = database.collection("events").doc(currentEvent);
@@ -72,15 +75,44 @@
               document.getElementById("title").innerHTML = "You have been invited to " + doc.data().name.toString()+ "!";
               document.getElementById("date").innerHTML = "The event will be on " + doc.data().eventDate.toString() + ".";
               document.getElementById("cost").innerHTML = "Each gift will cost around $" + doc.data().giftCost.toString() + ".";
-              document.getElementById("comments").innerHTML = "Comments on the event: " + doc.data().comments.toString() + ".";
-
+              document.getElementById("description").innerHTML = "Description: " + doc.data().description.toString();
+              document.getElementById("comments").innerHTML = "Comments on the event: " + doc.data().comments.toString();
           } else {
-              // doc.data() will be undefined in this case
               console.log("No such document!");
           }
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
+      }
+      
+      function checkPastDate() {
+        var v = database.collection("events").doc(currentEvent);
+        v.get().then(function(doc) {
+          if (doc.exists) {
+            var d1 = new Date();
+            var d2 = new Date(doc.data().signUpEndDate);
+            if(d1 > d2) {
+              pastDate = true;
+              pastDateFunction();
+            }
+          } else {
+              console.log("No such document!");
+          }
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+      }
+      
+      function pastDateFunction() {
+        document.getElementById("top").style.filter = "blur(8px)";
+        var node = document.createElement("h1");
+        var textnode = document.createTextNode("Sign ups for this event are closed.");
+        node.appendChild(textnode);
+        node.style.position = "absolute";
+        node.style.top = "50%";
+        node.style.left = "50%";
+        node.style.transform = "translate(-50%, -50%)";
+        document.body.appendChild(node);
       }
       
       function getUrlVars() {
@@ -98,7 +130,6 @@
           while (elm.hasChildNodes()) {
             elm.removeChild(elm.lastChild);
           }
-          
           if(listOfParticipants.length == 0) {
             var par = document.createElement("p");
             var text = document.createTextNode("No one has been added yet.");
@@ -125,6 +156,7 @@
         var docRef = database.collection("events").doc(currentEvent).collection("participants");
         listOfParticipants = []
         docRef.get().then(function(docs) {
+          listOfParticipants = []
           docs.forEach(function(doc) {
             listOfParticipants.push([doc.id, doc.data().name, doc.data().email]);
           });
@@ -138,29 +170,19 @@
       }
 
       function addParticipant(enteredName, enteredEmail) {
-        database.collection("events").doc(currentEvent).collection("participants").add({
-          name: enteredName,
-          email: enteredEmail
-        })
-        .then(function(docRef) {
-          console.log("Document written with ID: ", docRef.id);
-          getParticipants();
-        })
-        .catch(function(error) {
-          console.error("Error adding document: ", error);
-        });
-      }
-      
-      function writeSantaEventIntoFirebase(givenName) {
-        database.collection("events").doc(givenName).set({
-          name: givenName
-        })
-        .then(function() {
-          console.log("Document written with ID: ", givenName);
-        })
-        .catch(function(error) {
-          console.error("Error adding document: ", error);
-        });
+        if(!pastDate) {
+          database.collection("events").doc(currentEvent).collection("participants").add({
+            name: enteredName,
+            email: enteredEmail
+          })
+          .then(function(docRef) {
+            console.log("Document written with ID: ", docRef.id);
+            getParticipants();
+          })
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+          });
+        }
       }
       
     </script>

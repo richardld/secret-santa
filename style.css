@@ -1,8 +1,7 @@
 body {
   margin: 0;
-  background-color: #C3FDB8;
+  background-color: white;
   font-family: Arial, sans-serif;
-
 }
 
 html, body, .link {
@@ -11,24 +10,63 @@ html, body, .link {
   overflow: hidden;
 }
 
-h1 {
-  
-}
-
 button {
-  height: 9%;
-  width: 8%;
+  width: 150px;
+  height: 40px;
   border-width: 1px;
   border-style:solid;
-  border-color: black;
-  background-color: #C3FDB8;
+  border-color: #297A4A;
+  color: #297A4A;
+  border-radius: 7px;
+  background-color: white;
+}
 
+button.rightArrow {
+  width: 30px;
+  height: 375px;
+  margin-left: 50px;
+  margin-right: 75px;
+  border-radius: 0px;
+  border-left: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  font-size: 30px;
+  color: #4C986B;
+}
+
+button:disabled {
+  color: darkgrey;
+  border-color: darkgrey;
 }
 
 a {
   margin-left: 50px;
-  color: black;
+  color: #FEBAAA;
   text-decoration: none;
+}
+
+div.left {
+  float: left;
+  height: 100%;
+}
+
+textarea {
+  border: 1px solid #888; 
+  border-radius: 5px;
+  padding: 5px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #404040;
+
+}
+
+textarea:disabled {
+  background-color: #FFFFFF;
+}
+
+em {  /* or .call em, but you should aim for consistency in your styling */
+    font-style: normal;
+    font-size: 80%;
 }
 
 .link {
@@ -39,12 +77,17 @@ a {
 }
 
 .header {
-  background-color: #C3FDB8;
+  background-color: white;
   height: 95vh;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  color: #297A4A;
+}
+
+.blur {
+  filter: blur(2px);
 }
 
 input {
@@ -54,12 +97,22 @@ input {
   border-color: darkgrey;
 }
 
+input:focus {
+  border-color: darkgreen ;
+}
+
 .top {
   margin-left: 2%;
+  color: #297A4A;
 }
 
 .content {
   margin-left: 1%;
+}
+
+.horizontal {
+    display: flex;
+    align-items: center; 
 }
 
 .dollars::before {
@@ -72,7 +125,7 @@ input {
 
 
 .options {
-  background-color: #E0E0E0;
+  background-color: #AA4F39;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -83,6 +136,17 @@ input {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+input[type="email"]:invalid {
+  outline-width: 0;
+  outline: none;
+  border-color: red;
+  box-shadow: 0 0 0 red;
+}
+
+input:invalid {
+
 }
 
 input[type=number]::-webkit-inner-spin-button {

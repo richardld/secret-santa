@@ -11,11 +11,19 @@
       
       .innerContent1 {
         float: left;
-        width: 25%
+        width: 25%;
       }
       .innerContent2 {
-        float: right;
-        width: 75%
+        float: left;
+        width: 75%;
+      }
+      .innerContent3 {
+        float: left;
+        width: 30%;
+      }
+      .innerContent4 {
+        float: left;
+        width: 60%;
       }
       
       button {
@@ -24,16 +32,23 @@
         border-width: 1px;
         border-style:solid;
         border-color: black;
-        background-color: #C3FDB8;
+      }
+      
+      button.delete {
+        width: 150px;
+        height: 40px;
+        border-width: 2px;
+        border-style:solid;
+        border-color: red;
       }
       
     </style>
   </head>
   <body>
-    <div class="top">
+    <div id="top" class="top">
       <h1>Secret Santa App</h1>
-      <h2>You are the host of this event</h2>
-      <div class="content">
+      <h2 id="host">You are the host of this event</h2>
+      <div id="content" class="content">
         <div class="outerContent">
           <div class="innerContent1">
             <h4 id="title"></h3>
@@ -41,23 +56,31 @@
             <p id="date"></p>
             <p id="cost"></p>
             <p id="comments"></p>
-            <h4>People who are currently added</h4>
+            <h4>People who have already joined:</h4>
             <div id="peopleAdded"></div>
           </div>
           <div class="innerContent2">
-            <h4>People who are currently matched</h4>
-            <div id="peopleMatched">
-              <p>Participants will be automatically matched when the sign up period ends.</p>
+            <div class="innerContent4">
+              <h4>People who are currently matched:</h4>
+              <div id="peopleMatched">
+                <p>Participants will be automatically matched when the sign up period ends.</p>
+              </div>
+              <button id="generate">Force match</button>
             </div>
-            <button id="generate">Force match</button>
+            <div class="innerContent3">
+              <h4>Link to invite:</h4>
+              <p id="link">Error fetching link.</p>
+              <h4>Expected number of participants:</h4>
+              <p id="expected"></p>
+            </div>
           </div>
       </div>
     </div>
     <div class="options">
       <div class="link"?>
+        <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-        <a href="help.html">Help</a>
         <a href="https://github.com/richardld/secret-santa">Source</a>
       </div>
     </div>
@@ -84,26 +107,62 @@
       var database = firebase.firestore();
       var listOfParticipants = [];
       var shuffledArray;
+      var pastDate = false;
       
       //document.getElementById("create").onclick = /*createEvent*/;
+      var currentEvent = getUrlVars()['id'];
 
       document.getElementById("generate").onclick = matchParticipantsHandler;
+      document.getElementById("link").innerHTML = "https://richardld.github.io/secret-santa/invited.html?id=" + currentEvent;
+
       //console.log(listOfParticipants);
       
-      var currentEvent = getUrlVars()['id'];
-      
+      checkPastDate();
       updateParticipantsDisplay();
+      updateParticipantsMatchDisplay();
       updateInfoDisplay();
+            
+      function checkPastDate() {
+        var v = database.collection("events").doc(currentEvent);
+        v.get().then(function(doc) {
+          if (doc.exists) {
+            var d1 = new Date();
+            var d2 = new Date(doc.data().signUpEndDate);
+            if(d1 > d2) {
+              pastDate = true;
+            }
+          } else {
+              console.log("No such document!");
+          }
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+      }
+      
+      function deleteEvent() {
+        database.collection("events").doc(currentEvent).delete().then(function() {
+          console.log("Document successfully deleted!");
+          document.getElementById("content").innerHTML = "";
+          document.getElementById("host").innerHTML = "This event has been deleted.";
+        }).catch(function(error) {
+          console.error("Error removing document: ", error);
+        });
+      }
       
       function updateInfoDisplay() {
         var v = database.collection("events").doc(currentEvent);
         v.get().then(function(doc) {
           if (doc.exists) {
               document.getElementById("title").innerHTML = doc.data().name;
-              document.getElementById("signUpEndDate").innerHTML = "Sign ups will end on " + doc.data().signUpEndDate.toString() + ".";
+              if(!pastDate) {
+                document.getElementById("signUpEndDate").innerHTML = "Sign ups will end on " + doc.data().signUpEndDate.toString() + ".";
+              } else {
+                document.getElementById("signUpEndDate").innerHTML = "Sign ups closed on " + doc.data().signUpEndDate.toString() + ".";
+              }
               document.getElementById("date").innerHTML = "The event will be on " + doc.data().eventDate.toString() + ".";
               document.getElementById("cost").innerHTML = "Each gift will cost around $" + doc.data().giftCost.toString() + ".";
-              document.getElementById("comments").innerHTML = "Comments on the event: " + doc.data().comments.toString() + ".";
+              document.getElementById("comments").innerHTML = "Comments on the event: " + doc.data().comments.toString();
+              document.getElementById("expected").innerHTML = doc.data().peopleExpected.toString() + " participants are expected.";
 
           } else {
               // doc.data() will be undefined in this case
@@ -130,12 +189,19 @@
             elm.removeChild(elm.lastChild);
           }
           
-          for(var i = 0; i < listOfParticipants.length; i++) {
-            p = listOfParticipants[i];
+          if(listOfParticipants.length == 0) {
             var par = document.createElement("p");
-            var text = document.createTextNode(p[1]);
+            var text = document.createTextNode("No one has been added yet.");
             par.appendChild(text);
             document.getElementById("peopleAdded").appendChild(par);
+          } else {
+            for(var i = 0; i < listOfParticipants.length; i++) {
+              p = listOfParticipants[i];
+              var par = document.createElement("p");
+              var text = document.createTextNode(p[1]);
+              par.appendChild(text);
+              document.getElementById("peopleAdded").appendChild(par);
+            }
           }
         }, 1200);
       }
@@ -186,7 +252,7 @@
 
               });
           });
-        }, 1000);
+        }, 1500);
       }
       
       function matchParticipants() {
@@ -203,7 +269,7 @@
                 })
               });
           });
-        }, 1200);
+        }, 1000);
       }
 
       function createEvent() {
@@ -236,18 +302,6 @@
         .then(function(docRef) {
           console.log("Document written with ID: ", docRef.id);
           getParticipants();
-        })
-        .catch(function(error) {
-          console.error("Error adding document: ", error);
-        });
-      }
-      
-      function writeSantaEventIntoFirebase(givenName) {
-        database.collection("events").doc(givenName).set({
-          name: givenName
-        })
-        .then(function() {
-          console.log("Document written with ID: ", givenName);
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
